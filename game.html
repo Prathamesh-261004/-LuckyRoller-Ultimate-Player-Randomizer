@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎉 LuckyRoller: Ultimate Player Randomizer 🎲</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    h2 {
+      font-weight: 700;
+      font-size: 2.8rem;
+      color: #fff;
+      text-shadow: 0 3px 8px rgba(0,0,0,0.4);
+      margin-bottom: 25px;
+      user-select: none;
+      letter-spacing: 1.3px;
+    }
+
+    label {
+      font-weight: 600;
+      margin-right: 12px;
+    }
+
+    input[type=number], input[type=text], input[type=email] {
+      padding: 10px 14px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      width: 220px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input[type=number]:focus, input[type=text]:focus, input[type=email]:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 14px #007bffaa;
+    }
+
+    button {
+      cursor: pointer;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      font-weight: 700;
+      padding: 12px 26px;
+      border-radius: 30px;
+      font-size: 1.1rem;
+      box-shadow: 0 6px 15px rgba(0,123,255,0.5);
+      transition: background-color 0.4s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+      margin-left: 10px;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #0056b3;
+      transform: scale(1.07);
+      box-shadow: 0 8px 25px rgba(0,86,179,0.7);
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    #playerCount {
+      max-width: 80px;
+      font-weight: 600;
+    }
+
+    #playerForm {
+      margin-top: 30px;
+      width: 100%;
+      max-width: 460px;
+      user-select: none;
+    }
+
+    .player-input {
+      background: #fff;
+      padding: 20px 25px;
+      margin-bottom: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgb(0 0 0 / 0.12);
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeSlideIn 0.5s forwards;
+    }
+
+    .player-input:nth-child(odd) { animation-delay: 0.15s; }
+    .player-input:nth-child(even) { animation-delay: 0.3s; }
+
+    .player-input h4 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-weight: 700;
+      color: #007bff;
+    }
+
+    .player-input label {
+      display: inline-block;
+      width: 85px;
+      text-align: right;
+      margin-right: 15px;
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    .player-input input {
+      width: calc(100% - 115px);
+    }
+
+    #rollButton {
+      margin-top: 15px;
+      display: none;
+      width: 200px;
+      user-select: none;
+    }
+
+    #roll-result {
+      margin-top: 35px;
+      background: #007bff;
+      color: white;
+      max-width: 460px;
+      padding: 25px 30px;
+      border-radius: 20px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: left;
+      white-space: pre-line;
+      box-shadow: 0 10px 30px rgba(0, 123, 255, 0.4);
+      opacity: 0;
+      transform: translateY(20px);
+      animation-fill-mode: forwards;
+      user-select: text;
+    }
+
+    #error-msg {
+      color: #ff4d4d;
+      font-weight: 700;
+      margin-top: 15px;
+      font-size: 1.1rem;
+      min-height: 26px;
+      user-select: none;
+    }
+
+    @keyframes fadeSlideIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes resultFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background-color: #fff;
+      opacity: 0.9;
+      z-index: 9999;
+      pointer-events: none;
+      animation: fall 3s linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h2>🎲 LuckyRoller: Ultimate Player Randomizer 🎲</h2>
+
+<div>
+  <label for="playerCount">Number of players:</label>
+  <input type="number" id="playerCount" min="1" />
+  <button onclick="generateInputs()">Submit</button>
+</div>
+
+<form id="playerForm" onsubmit="return false;"></form>
+<button id="rollButton" onclick="rollRandomNumber()">Roll</button>
+
+<div id="error-msg"></div>
+<div id="roll-result"></div>
+
+<script>
+  let players = [];
+
+  const nameRegex = /^[A-Za-z ]+$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^[0-9]{7,15}$/;
+
+  function generateInputs() {
+    const playerCount = parseInt(document.getElementById("playerCount").value);
+    const form = document.getElementById("playerForm");
+    players = [];
+    form.innerHTML = '';
+    document.getElementById("rollButton").style.display = "none";
+    document.getElementById("roll-result").style.opacity = 0;
+    document.getElementById("roll-result").innerText = '';
+    document.getElementById("error-msg").innerText = '';
+
+    if (!playerCount || playerCount < 1) {
+      alert("Please enter a valid number of players (at least 1).");
+      return;
+    }
+
+    for (let i = 1; i <= playerCount; i++) {
+      form.innerHTML += `
+        <div class="player-input" style="animation-delay:${0.15 * i}s">
+          <h4>Player ${i}</h4>
+          <label for="name${i}">Name:</label>
+          <input type="text" id="name${i}" required /><br />
+          <label for="email${i}">Email:</label>
+          <input type="email" id="email${i}" required /><br />
+          <label for="number${i}">Number:</label>
+          <input type="number" id="number${i}" required /><br />
+          <label for="phone${i}">Phone:</label>
+          <input type="text" id="phone${i}" required /><br />
+        </div>
+      `;
+    }
+    form.innerHTML += `<button onclick="collectPlayers()" style="margin-top:10px;">Done</button>`;
+  }
+
+  function collectPlayers() {
+    const playerCount = parseInt(document.getElementById("playerCount").value);
+    players = [];
+    document.getElementById("error-msg").innerText = '';
+
+    for (let i = 1; i <= playerCount; i++) {
+      const name = document.getElementById(`name${i}`).value.trim();
+      const email = document.getElementById(`email${i}`).value.trim();
+      const number = document.getElementById(`number${i}`).value.trim();
+      const phone = document.getElementById(`phone${i}`).value.trim();
+
+      if (!name || !nameRegex.test(name)) return displayError(`Player ${i}: Invalid name.`);
+      if (!email || !emailRegex.test(email)) return displayError(`Player ${i}: Invalid email.`);
+      if (!number || isNaN(number)) return displayError(`Player ${i}: Number must be numeric.`);
+      if (!phone || !phoneRegex.test(phone)) return displayError(`Player ${i}: Invalid phone.`);
+
+      players.push({ name, email, number, phone });
+    }
+
+    if (hasDuplicates(players)) {
+      displayError("Duplicate entries found. All fields must be unique.");
+      return;
+    }
+
+    document.getElementById("rollButton").style.display = "inline-block";
+    alert("Players added! Now click 'Roll' to find the lucky one.");
+  }
+
+  function hasDuplicates(arr) {
+    const seen = { name: new Set(), email: new Set(), number: new Set(), phone: new Set() };
+    for (const p of arr) {
+      if (
+        seen.name.has(p.name.toLowerCase()) ||
+        seen.email.has(p.email.toLowerCase()) ||
+        seen.number.has(p.number) ||
+        seen.phone.has(p.phone)
+      ) return true;
+      seen.name.add(p.name.toLowerCase());
+      seen.email.add(p.email.toLowerCase());
+      seen.number.add(p.number);
+      seen.phone.add(p.phone);
+    }
+    return false;
+  }
+
+  function displayError(msg) {
+    document.getElementById("error-msg").innerText = msg;
+    document.getElementById("roll-result").innerText = '';
+    document.getElementById("roll-result").style.opacity = 0;
+    document.getElementById("rollButton").style.display = "none";
+  }
+
+  function rollRandomNumber() {
+    if (players.length === 0) return;
+    const winner = players[Math.floor(Math.random() * players.length)];
+    const resultDiv = document.getElementById("roll-result");
+    resultDiv.innerText = `🎉 Winner: ${winner.number}\n👤 ${winner.name}\n📧 ${winner.email}\n📞 ${winner.phone}`;
+    resultDiv.style.animation = "resultFadeIn 0.8s forwards";
+    createConfetti();
+  }
+
+  function createConfetti() {
+    const colors = ['#FFC700', '#FF0000', '#2E3192', '#41BBC7', '#732982', '#00A651'];
+    const count = 80;
+    for (let i = 0; i < count; i++) {
+      const confetti = document.createElement("div");
+      confetti.classList.add("confetti");
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.left = Math.random() * 100 + "vw";
+      confetti.style.top = "-10px";
+      confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+      confetti.style.animationDuration = (Math.random() * 2 + 2) + "s";
+      document.body.appendChild(confetti);
+      setTimeout(() => confetti.remove(), 3000);
+    }
+  }
+</script>
+</body>
+</html>
