@@ -1,2 +1,1 @@
-# -LuckyRoller-Ultimate-Player-Randomizer
-LuckyRoller is a playful web app that lets users enter player details and randomly selects a winner with a single click—complete with animations and confetti. Perfect for games, raffles, and team events!
+LuckyRoller is a fun, interactive web app designed to randomly select a winner from a list of players. Users can input names, emails, numbers, and phone numbers for each participant. Once validated and submitted, a single click on the “Roll” button triggers a fair, animated draw that picks one lucky winner and displays their details with a celebratory confetti effect. Ideal for games, giveaways, team-building activities, or classroom selections! 
